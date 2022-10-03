@@ -103,6 +103,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _Add: 0.5
     - _AlphaClip: 0
     - _Blend: 0
     - _BumpScale: 1
@@ -111,6 +112,7 @@ Material:
     - _ColorMask: 15
     - _Cull: 2
     - _CutOut: 0.5
+    - _CutOut2: 0
     - _Cutoff: 0.5
     - _Detail: 20
     - _DetailAlbedoMapScale: 1
@@ -119,9 +121,11 @@ Material:
     - _EnvironmentReflections: 1
     - _FadeAngle: -60
     - _FadeEnd: 1
+    - _FadeLength: 0
     - _FadeOut: 1
-    - _FadeStart: 0
-    - _Fineness: 5
+    - _FadePos: 0.05
+    - _FadeStart: -0.35
+    - _Fineness: 0.05
     - _Finess: 0.05
     - _GlossMapScale: 0
     - _Glossiness: 0
@@ -129,6 +133,7 @@ Material:
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
+    - _Pow: 0.48
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
@@ -153,7 +158,7 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Fine: {r: 10, g: 20, b: 0, a: 0}
     - _Fineness: {r: -0.02, g: 0.02, b: 0, a: 0}
-    - _InColor: {r: 1, g: 0.5, b: 0.5, a: 1}
+    - _InColor: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}
     - _OutColor: {r: 1, g: 1, b: 0.75, a: 1}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _Speed: {r: 0.5, g: -1, b: 0, a: 0}

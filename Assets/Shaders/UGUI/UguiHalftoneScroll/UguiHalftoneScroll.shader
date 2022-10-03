@@ -7,10 +7,10 @@ Shader "UguiHalftoneScroll"
         _Speed("Speed", Vector) = (0.5, -1, 0, 0)
         _InColor("InColor", Color) = (1, 1, 1, 1)
         _OutColor("OutColor", Color) = (0, 0, 0, 0)
+        _FadePos("FadePos", Float) = 0
+        _Add("Add", Float) = 0
         _CutOut("CutOut", Range(0, 1)) = 0.5
         _FadeAngle("FadeAngle", Range(-180, 180)) = -90
-        _FadeStart("FadeStart", Float) = 0
-        _FadeEnd("FadeEnd", Float) = 1
         [HideInInspector][NoScaleOffset]unity_Lightmaps("unity_Lightmaps", 2DArray) = "" {}
         [HideInInspector][NoScaleOffset]unity_LightmapsInd("unity_LightmapsInd", 2DArray) = "" {}
         [HideInInspector][NoScaleOffset]unity_ShadowMasks("unity_ShadowMasks", 2DArray) = "" {}
@@ -35,11 +35,11 @@ Shader "UguiHalftoneScroll"
         }
         Stencil
         {
-         Ref [_Stencil]
-         Comp [_StencilComp]
-         Pass [_StencilOp]
-         ReadMask [_StencilReadMask]
-         WriteMask [_StencilWriteMask]
+            Ref [_Stencil]
+            Comp [_StencilComp]
+            Pass [_StencilOp]
+            ReadMask [_StencilReadMask]
+            WriteMask [_StencilWriteMask]
         }
         Pass
         {
@@ -228,8 +228,8 @@ Shader "UguiHalftoneScroll"
         float _CutOut;
         float4 _InColor;
         float _Fineness;
-        float _FadeStart;
-        float _FadeEnd;
+        float _FadePos;
+        float _Add;
         CBUFFER_END
         
         // Object and Global properties
@@ -273,9 +273,9 @@ Shader "UguiHalftoneScroll"
             Out = frac(In);
         }
         
-        void Unity_Step_float(float Edge, float In, out float Out)
+        void Unity_Add_float(float A, float B, out float Out)
         {
-            Out = step(Edge, In);
+            Out = A + B;
         }
         
         void Unity_Rotate_Degrees_float(float2 UV, float2 Center, float Rotation, out float2 Out)
@@ -309,6 +309,11 @@ Shader "UguiHalftoneScroll"
             Out = A * B;
         }
         
+        void Unity_Step_float(float Edge, float In, out float Out)
+        {
+            Out = step(Edge, In);
+        }
+        
         void Unity_OneMinus_float(float In, out float Out)
         {
             Out = 1 - In;
@@ -320,11 +325,6 @@ Shader "UguiHalftoneScroll"
         }
         
         void Unity_Add_float3(float3 A, float3 B, out float3 Out)
-        {
-            Out = A + B;
-        }
-        
-        void Unity_Add_float(float A, float B, out float Out)
         {
             Out = A + B;
         }
@@ -374,7 +374,7 @@ Shader "UguiHalftoneScroll"
             float2 _Multiply_d5bc2af014fb4e1984423be16e940dae_Out_2;
             Unity_Multiply_float2_float2((IN.TimeParameters.x.xx), _Property_6bf3322506034db480e189df64741c4b_Out_0, _Multiply_d5bc2af014fb4e1984423be16e940dae_Out_2);
             float2 _TilingAndOffset_31ff98aece294bfb8c46c8833c23721c_Out_3;
-            Unity_TilingAndOffset_float((_Multiply_3c38c1bff1b24fdabe33a7c9a5368f47_Out_2.xy), float2 (0.01, 0.01), _Multiply_d5bc2af014fb4e1984423be16e940dae_Out_2, _TilingAndOffset_31ff98aece294bfb8c46c8833c23721c_Out_3);
+            Unity_TilingAndOffset_float((_Multiply_3c38c1bff1b24fdabe33a7c9a5368f47_Out_2.xy), float2 (1, 1), _Multiply_d5bc2af014fb4e1984423be16e940dae_Out_2, _TilingAndOffset_31ff98aece294bfb8c46c8833c23721c_Out_3);
             float2 _Fraction_ddd49d606aa64e98818684e1f5ca2a4b_Out_1;
             Unity_Fraction_float2(_TilingAndOffset_31ff98aece294bfb8c46c8833c23721c_Out_3, _Fraction_ddd49d606aa64e98818684e1f5ca2a4b_Out_1);
             float4 _SampleTexture2D_59795b66471740a39814ec94d2056178_RGBA_0 = SAMPLE_TEXTURE2D(_Property_c1246444df68471ca9c2cf4c05d44a7f_Out_0.tex, _Property_c1246444df68471ca9c2cf4c05d44a7f_Out_0.samplerstate, _Property_c1246444df68471ca9c2cf4c05d44a7f_Out_0.GetTransformedUV(_Fraction_ddd49d606aa64e98818684e1f5ca2a4b_Out_1));
@@ -382,11 +382,12 @@ Shader "UguiHalftoneScroll"
             float _SampleTexture2D_59795b66471740a39814ec94d2056178_G_5 = _SampleTexture2D_59795b66471740a39814ec94d2056178_RGBA_0.g;
             float _SampleTexture2D_59795b66471740a39814ec94d2056178_B_6 = _SampleTexture2D_59795b66471740a39814ec94d2056178_RGBA_0.b;
             float _SampleTexture2D_59795b66471740a39814ec94d2056178_A_7 = _SampleTexture2D_59795b66471740a39814ec94d2056178_RGBA_0.a;
-            float _Property_245e5fad73664cf48bdabc8e401deac4_Out_0 = _CutOut;
-            float _Step_4cec721205f847bc83ed9703c7e55f4f_Out_2;
-            Unity_Step_float(_Property_245e5fad73664cf48bdabc8e401deac4_Out_0, _SampleTexture2D_59795b66471740a39814ec94d2056178_R_4, _Step_4cec721205f847bc83ed9703c7e55f4f_Out_2);
-            float _Property_8fab37fa17404320acbb12bcdf8ab86c_Out_0 = _FadeStart;
-            float _Property_8342fbde3d9c4d869e9a3c0b47bcb505_Out_0 = _FadeEnd;
+            float _Property_b5ca837611714b848a6fc1ff7bab3508_Out_0 = _Add;
+            float _Add_b943e4bc314d4cb7993b2868c50a9eb0_Out_2;
+            Unity_Add_float(_SampleTexture2D_59795b66471740a39814ec94d2056178_R_4, _Property_b5ca837611714b848a6fc1ff7bab3508_Out_0, _Add_b943e4bc314d4cb7993b2868c50a9eb0_Out_2);
+            float _Property_0e4acdedfca64627bd8a2c4798ca0e74_Out_0 = _FadePos;
+            float _Add_eb4cae51d2d7493092685552b95455ad_Out_2;
+            Unity_Add_float(_Property_0e4acdedfca64627bd8a2c4798ca0e74_Out_0, 1, _Add_eb4cae51d2d7493092685552b95455ad_Out_2);
             float _Property_9b787bff13fb4bfb8c1990460838cc47_Out_0 = _FadeAngle;
             float2 _Rotate_0fc591d64b9e4fe6bd24accc72eedb35_Out_3;
             Unity_Rotate_Degrees_float(IN.uv0.xy, float2 (0.5, 0.5), _Property_9b787bff13fb4bfb8c1990460838cc47_Out_0, _Rotate_0fc591d64b9e4fe6bd24accc72eedb35_Out_3);
@@ -394,15 +395,13 @@ Shader "UguiHalftoneScroll"
             float _Split_2fb787a8ca3b491da2cceb170763c878_G_2 = _Rotate_0fc591d64b9e4fe6bd24accc72eedb35_Out_3[1];
             float _Split_2fb787a8ca3b491da2cceb170763c878_B_3 = 0;
             float _Split_2fb787a8ca3b491da2cceb170763c878_A_4 = 0;
-            float _Smoothstep_a9b7ff11a107421bb0c85a2f432da89b_Out_3;
-            Unity_Smoothstep_float(_Property_8fab37fa17404320acbb12bcdf8ab86c_Out_0, _Property_8342fbde3d9c4d869e9a3c0b47bcb505_Out_0, _Split_2fb787a8ca3b491da2cceb170763c878_R_1, _Smoothstep_a9b7ff11a107421bb0c85a2f432da89b_Out_3);
-            float _Multiply_11161919d70a4677afa5464991e82604_Out_2;
-            Unity_Multiply_float_float(_Step_4cec721205f847bc83ed9703c7e55f4f_Out_2, _Smoothstep_a9b7ff11a107421bb0c85a2f432da89b_Out_3, _Multiply_11161919d70a4677afa5464991e82604_Out_2);
-            float _Multiply_fa3b80bb520746589d1a1fbad510a77c_Out_2;
-            Unity_Multiply_float_float(_SampleTexture2D_59795b66471740a39814ec94d2056178_R_4, _Multiply_11161919d70a4677afa5464991e82604_Out_2, _Multiply_fa3b80bb520746589d1a1fbad510a77c_Out_2);
-            float _Property_677f641e9b8544658c10e5d5ee43e798_Out_0 = _CutOut;
+            float _Smoothstep_3cb648dfa43c405a99de585a4bf2ca07_Out_3;
+            Unity_Smoothstep_float(_Property_0e4acdedfca64627bd8a2c4798ca0e74_Out_0, _Add_eb4cae51d2d7493092685552b95455ad_Out_2, _Split_2fb787a8ca3b491da2cceb170763c878_R_1, _Smoothstep_3cb648dfa43c405a99de585a4bf2ca07_Out_3);
+            float _Multiply_1e4558c9e2d64a5195f6dbce93ca7064_Out_2;
+            Unity_Multiply_float_float(_Add_b943e4bc314d4cb7993b2868c50a9eb0_Out_2, _Smoothstep_3cb648dfa43c405a99de585a4bf2ca07_Out_3, _Multiply_1e4558c9e2d64a5195f6dbce93ca7064_Out_2);
+            float _Property_475e171a1ad74f68bb6a5de7f7fda48b_Out_0 = _CutOut;
             float _Step_7b58b826ad084a21a5279ceb77a87537_Out_2;
-            Unity_Step_float(_Multiply_fa3b80bb520746589d1a1fbad510a77c_Out_2, _Property_677f641e9b8544658c10e5d5ee43e798_Out_0, _Step_7b58b826ad084a21a5279ceb77a87537_Out_2);
+            Unity_Step_float(_Multiply_1e4558c9e2d64a5195f6dbce93ca7064_Out_2, _Property_475e171a1ad74f68bb6a5de7f7fda48b_Out_0, _Step_7b58b826ad084a21a5279ceb77a87537_Out_2);
             float _OneMinus_4d55020d5bc240ec88662fc8676a8545_Out_1;
             Unity_OneMinus_float(_Step_7b58b826ad084a21a5279ceb77a87537_Out_2, _OneMinus_4d55020d5bc240ec88662fc8676a8545_Out_1);
             float4 _Property_4e04027d2f264a7e996c0f86a92319e4_Out_0 = _InColor;
@@ -413,12 +412,9 @@ Shader "UguiHalftoneScroll"
             float _Split_24e01fca92e949eba7a6774c29fe137c_B_3 = _Multiply_224c206ab753483fb0424db29547e269_Out_2[2];
             float _Split_24e01fca92e949eba7a6774c29fe137c_A_4 = _Multiply_224c206ab753483fb0424db29547e269_Out_2[3];
             float3 _Vector3_56713135973e4678aa995ed888d16058_Out_0 = float3(_Split_24e01fca92e949eba7a6774c29fe137c_R_1, _Split_24e01fca92e949eba7a6774c29fe137c_G_2, _Split_24e01fca92e949eba7a6774c29fe137c_B_3);
-            float4 _Property_8ac41d77650a4e60ba7ae43021efb78f_Out_0 = _OutColor;
-            float4 _Multiply_8ebc8d8c877446358817ceb37c0b7aa2_Out_2;
-            Unity_Multiply_float4_float4((_Step_7b58b826ad084a21a5279ceb77a87537_Out_2.xxxx), _Property_8ac41d77650a4e60ba7ae43021efb78f_Out_0, _Multiply_8ebc8d8c877446358817ceb37c0b7aa2_Out_2);
             float4 _Property_e4c4a599ef4b42de9a2cd94b6249d668_Out_0 = _OutColor;
             float4 _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2;
-            Unity_Multiply_float4_float4(_Multiply_8ebc8d8c877446358817ceb37c0b7aa2_Out_2, _Property_e4c4a599ef4b42de9a2cd94b6249d668_Out_0, _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2);
+            Unity_Multiply_float4_float4((_Step_7b58b826ad084a21a5279ceb77a87537_Out_2.xxxx), _Property_e4c4a599ef4b42de9a2cd94b6249d668_Out_0, _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2);
             float _Split_c8253fd439714b94a75cb2a77a77b722_R_1 = _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2[0];
             float _Split_c8253fd439714b94a75cb2a77a77b722_G_2 = _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2[1];
             float _Split_c8253fd439714b94a75cb2a77a77b722_B_3 = _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2[2];
@@ -656,8 +652,8 @@ Shader "UguiHalftoneScroll"
         float _CutOut;
         float4 _InColor;
         float _Fineness;
-        float _FadeStart;
-        float _FadeEnd;
+        float _FadePos;
+        float _Add;
         CBUFFER_END
         
         // Object and Global properties
@@ -701,9 +697,9 @@ Shader "UguiHalftoneScroll"
             Out = frac(In);
         }
         
-        void Unity_Step_float(float Edge, float In, out float Out)
+        void Unity_Add_float(float A, float B, out float Out)
         {
-            Out = step(Edge, In);
+            Out = A + B;
         }
         
         void Unity_Rotate_Degrees_float(float2 UV, float2 Center, float Rotation, out float2 Out)
@@ -737,6 +733,11 @@ Shader "UguiHalftoneScroll"
             Out = A * B;
         }
         
+        void Unity_Step_float(float Edge, float In, out float Out)
+        {
+            Out = step(Edge, In);
+        }
+        
         void Unity_OneMinus_float(float In, out float Out)
         {
             Out = 1 - In;
@@ -745,11 +746,6 @@ Shader "UguiHalftoneScroll"
         void Unity_Multiply_float4_float4(float4 A, float4 B, out float4 Out)
         {
             Out = A * B;
-        }
-        
-        void Unity_Add_float(float A, float B, out float Out)
-        {
-            Out = A + B;
         }
         
             /* WARNING: $splice Could not find named fragment 'CustomInterpolatorPreVertex' */
@@ -796,7 +792,7 @@ Shader "UguiHalftoneScroll"
             float2 _Multiply_d5bc2af014fb4e1984423be16e940dae_Out_2;
             Unity_Multiply_float2_float2((IN.TimeParameters.x.xx), _Property_6bf3322506034db480e189df64741c4b_Out_0, _Multiply_d5bc2af014fb4e1984423be16e940dae_Out_2);
             float2 _TilingAndOffset_31ff98aece294bfb8c46c8833c23721c_Out_3;
-            Unity_TilingAndOffset_float((_Multiply_3c38c1bff1b24fdabe33a7c9a5368f47_Out_2.xy), float2 (0.01, 0.01), _Multiply_d5bc2af014fb4e1984423be16e940dae_Out_2, _TilingAndOffset_31ff98aece294bfb8c46c8833c23721c_Out_3);
+            Unity_TilingAndOffset_float((_Multiply_3c38c1bff1b24fdabe33a7c9a5368f47_Out_2.xy), float2 (1, 1), _Multiply_d5bc2af014fb4e1984423be16e940dae_Out_2, _TilingAndOffset_31ff98aece294bfb8c46c8833c23721c_Out_3);
             float2 _Fraction_ddd49d606aa64e98818684e1f5ca2a4b_Out_1;
             Unity_Fraction_float2(_TilingAndOffset_31ff98aece294bfb8c46c8833c23721c_Out_3, _Fraction_ddd49d606aa64e98818684e1f5ca2a4b_Out_1);
             float4 _SampleTexture2D_59795b66471740a39814ec94d2056178_RGBA_0 = SAMPLE_TEXTURE2D(_Property_c1246444df68471ca9c2cf4c05d44a7f_Out_0.tex, _Property_c1246444df68471ca9c2cf4c05d44a7f_Out_0.samplerstate, _Property_c1246444df68471ca9c2cf4c05d44a7f_Out_0.GetTransformedUV(_Fraction_ddd49d606aa64e98818684e1f5ca2a4b_Out_1));
@@ -804,11 +800,12 @@ Shader "UguiHalftoneScroll"
             float _SampleTexture2D_59795b66471740a39814ec94d2056178_G_5 = _SampleTexture2D_59795b66471740a39814ec94d2056178_RGBA_0.g;
             float _SampleTexture2D_59795b66471740a39814ec94d2056178_B_6 = _SampleTexture2D_59795b66471740a39814ec94d2056178_RGBA_0.b;
             float _SampleTexture2D_59795b66471740a39814ec94d2056178_A_7 = _SampleTexture2D_59795b66471740a39814ec94d2056178_RGBA_0.a;
-            float _Property_245e5fad73664cf48bdabc8e401deac4_Out_0 = _CutOut;
-            float _Step_4cec721205f847bc83ed9703c7e55f4f_Out_2;
-            Unity_Step_float(_Property_245e5fad73664cf48bdabc8e401deac4_Out_0, _SampleTexture2D_59795b66471740a39814ec94d2056178_R_4, _Step_4cec721205f847bc83ed9703c7e55f4f_Out_2);
-            float _Property_8fab37fa17404320acbb12bcdf8ab86c_Out_0 = _FadeStart;
-            float _Property_8342fbde3d9c4d869e9a3c0b47bcb505_Out_0 = _FadeEnd;
+            float _Property_b5ca837611714b848a6fc1ff7bab3508_Out_0 = _Add;
+            float _Add_b943e4bc314d4cb7993b2868c50a9eb0_Out_2;
+            Unity_Add_float(_SampleTexture2D_59795b66471740a39814ec94d2056178_R_4, _Property_b5ca837611714b848a6fc1ff7bab3508_Out_0, _Add_b943e4bc314d4cb7993b2868c50a9eb0_Out_2);
+            float _Property_0e4acdedfca64627bd8a2c4798ca0e74_Out_0 = _FadePos;
+            float _Add_eb4cae51d2d7493092685552b95455ad_Out_2;
+            Unity_Add_float(_Property_0e4acdedfca64627bd8a2c4798ca0e74_Out_0, 1, _Add_eb4cae51d2d7493092685552b95455ad_Out_2);
             float _Property_9b787bff13fb4bfb8c1990460838cc47_Out_0 = _FadeAngle;
             float2 _Rotate_0fc591d64b9e4fe6bd24accc72eedb35_Out_3;
             Unity_Rotate_Degrees_float(IN.uv0.xy, float2 (0.5, 0.5), _Property_9b787bff13fb4bfb8c1990460838cc47_Out_0, _Rotate_0fc591d64b9e4fe6bd24accc72eedb35_Out_3);
@@ -816,15 +813,13 @@ Shader "UguiHalftoneScroll"
             float _Split_2fb787a8ca3b491da2cceb170763c878_G_2 = _Rotate_0fc591d64b9e4fe6bd24accc72eedb35_Out_3[1];
             float _Split_2fb787a8ca3b491da2cceb170763c878_B_3 = 0;
             float _Split_2fb787a8ca3b491da2cceb170763c878_A_4 = 0;
-            float _Smoothstep_a9b7ff11a107421bb0c85a2f432da89b_Out_3;
-            Unity_Smoothstep_float(_Property_8fab37fa17404320acbb12bcdf8ab86c_Out_0, _Property_8342fbde3d9c4d869e9a3c0b47bcb505_Out_0, _Split_2fb787a8ca3b491da2cceb170763c878_R_1, _Smoothstep_a9b7ff11a107421bb0c85a2f432da89b_Out_3);
-            float _Multiply_11161919d70a4677afa5464991e82604_Out_2;
-            Unity_Multiply_float_float(_Step_4cec721205f847bc83ed9703c7e55f4f_Out_2, _Smoothstep_a9b7ff11a107421bb0c85a2f432da89b_Out_3, _Multiply_11161919d70a4677afa5464991e82604_Out_2);
-            float _Multiply_fa3b80bb520746589d1a1fbad510a77c_Out_2;
-            Unity_Multiply_float_float(_SampleTexture2D_59795b66471740a39814ec94d2056178_R_4, _Multiply_11161919d70a4677afa5464991e82604_Out_2, _Multiply_fa3b80bb520746589d1a1fbad510a77c_Out_2);
-            float _Property_677f641e9b8544658c10e5d5ee43e798_Out_0 = _CutOut;
+            float _Smoothstep_3cb648dfa43c405a99de585a4bf2ca07_Out_3;
+            Unity_Smoothstep_float(_Property_0e4acdedfca64627bd8a2c4798ca0e74_Out_0, _Add_eb4cae51d2d7493092685552b95455ad_Out_2, _Split_2fb787a8ca3b491da2cceb170763c878_R_1, _Smoothstep_3cb648dfa43c405a99de585a4bf2ca07_Out_3);
+            float _Multiply_1e4558c9e2d64a5195f6dbce93ca7064_Out_2;
+            Unity_Multiply_float_float(_Add_b943e4bc314d4cb7993b2868c50a9eb0_Out_2, _Smoothstep_3cb648dfa43c405a99de585a4bf2ca07_Out_3, _Multiply_1e4558c9e2d64a5195f6dbce93ca7064_Out_2);
+            float _Property_475e171a1ad74f68bb6a5de7f7fda48b_Out_0 = _CutOut;
             float _Step_7b58b826ad084a21a5279ceb77a87537_Out_2;
-            Unity_Step_float(_Multiply_fa3b80bb520746589d1a1fbad510a77c_Out_2, _Property_677f641e9b8544658c10e5d5ee43e798_Out_0, _Step_7b58b826ad084a21a5279ceb77a87537_Out_2);
+            Unity_Step_float(_Multiply_1e4558c9e2d64a5195f6dbce93ca7064_Out_2, _Property_475e171a1ad74f68bb6a5de7f7fda48b_Out_0, _Step_7b58b826ad084a21a5279ceb77a87537_Out_2);
             float _OneMinus_4d55020d5bc240ec88662fc8676a8545_Out_1;
             Unity_OneMinus_float(_Step_7b58b826ad084a21a5279ceb77a87537_Out_2, _OneMinus_4d55020d5bc240ec88662fc8676a8545_Out_1);
             float4 _Property_4e04027d2f264a7e996c0f86a92319e4_Out_0 = _InColor;
@@ -834,12 +829,9 @@ Shader "UguiHalftoneScroll"
             float _Split_24e01fca92e949eba7a6774c29fe137c_G_2 = _Multiply_224c206ab753483fb0424db29547e269_Out_2[1];
             float _Split_24e01fca92e949eba7a6774c29fe137c_B_3 = _Multiply_224c206ab753483fb0424db29547e269_Out_2[2];
             float _Split_24e01fca92e949eba7a6774c29fe137c_A_4 = _Multiply_224c206ab753483fb0424db29547e269_Out_2[3];
-            float4 _Property_8ac41d77650a4e60ba7ae43021efb78f_Out_0 = _OutColor;
-            float4 _Multiply_8ebc8d8c877446358817ceb37c0b7aa2_Out_2;
-            Unity_Multiply_float4_float4((_Step_7b58b826ad084a21a5279ceb77a87537_Out_2.xxxx), _Property_8ac41d77650a4e60ba7ae43021efb78f_Out_0, _Multiply_8ebc8d8c877446358817ceb37c0b7aa2_Out_2);
             float4 _Property_e4c4a599ef4b42de9a2cd94b6249d668_Out_0 = _OutColor;
             float4 _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2;
-            Unity_Multiply_float4_float4(_Multiply_8ebc8d8c877446358817ceb37c0b7aa2_Out_2, _Property_e4c4a599ef4b42de9a2cd94b6249d668_Out_0, _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2);
+            Unity_Multiply_float4_float4((_Step_7b58b826ad084a21a5279ceb77a87537_Out_2.xxxx), _Property_e4c4a599ef4b42de9a2cd94b6249d668_Out_0, _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2);
             float _Split_c8253fd439714b94a75cb2a77a77b722_R_1 = _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2[0];
             float _Split_c8253fd439714b94a75cb2a77a77b722_G_2 = _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2[1];
             float _Split_c8253fd439714b94a75cb2a77a77b722_B_3 = _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2[2];
@@ -1073,8 +1065,8 @@ Shader "UguiHalftoneScroll"
         float _CutOut;
         float4 _InColor;
         float _Fineness;
-        float _FadeStart;
-        float _FadeEnd;
+        float _FadePos;
+        float _Add;
         CBUFFER_END
         
         // Object and Global properties
@@ -1118,9 +1110,9 @@ Shader "UguiHalftoneScroll"
             Out = frac(In);
         }
         
-        void Unity_Step_float(float Edge, float In, out float Out)
+        void Unity_Add_float(float A, float B, out float Out)
         {
-            Out = step(Edge, In);
+            Out = A + B;
         }
         
         void Unity_Rotate_Degrees_float(float2 UV, float2 Center, float Rotation, out float2 Out)
@@ -1154,6 +1146,11 @@ Shader "UguiHalftoneScroll"
             Out = A * B;
         }
         
+        void Unity_Step_float(float Edge, float In, out float Out)
+        {
+            Out = step(Edge, In);
+        }
+        
         void Unity_OneMinus_float(float In, out float Out)
         {
             Out = 1 - In;
@@ -1162,11 +1159,6 @@ Shader "UguiHalftoneScroll"
         void Unity_Multiply_float4_float4(float4 A, float4 B, out float4 Out)
         {
             Out = A * B;
-        }
-        
-        void Unity_Add_float(float A, float B, out float Out)
-        {
-            Out = A + B;
         }
         
             /* WARNING: $splice Could not find named fragment 'CustomInterpolatorPreVertex' */
@@ -1213,7 +1205,7 @@ Shader "UguiHalftoneScroll"
             float2 _Multiply_d5bc2af014fb4e1984423be16e940dae_Out_2;
             Unity_Multiply_float2_float2((IN.TimeParameters.x.xx), _Property_6bf3322506034db480e189df64741c4b_Out_0, _Multiply_d5bc2af014fb4e1984423be16e940dae_Out_2);
             float2 _TilingAndOffset_31ff98aece294bfb8c46c8833c23721c_Out_3;
-            Unity_TilingAndOffset_float((_Multiply_3c38c1bff1b24fdabe33a7c9a5368f47_Out_2.xy), float2 (0.01, 0.01), _Multiply_d5bc2af014fb4e1984423be16e940dae_Out_2, _TilingAndOffset_31ff98aece294bfb8c46c8833c23721c_Out_3);
+            Unity_TilingAndOffset_float((_Multiply_3c38c1bff1b24fdabe33a7c9a5368f47_Out_2.xy), float2 (1, 1), _Multiply_d5bc2af014fb4e1984423be16e940dae_Out_2, _TilingAndOffset_31ff98aece294bfb8c46c8833c23721c_Out_3);
             float2 _Fraction_ddd49d606aa64e98818684e1f5ca2a4b_Out_1;
             Unity_Fraction_float2(_TilingAndOffset_31ff98aece294bfb8c46c8833c23721c_Out_3, _Fraction_ddd49d606aa64e98818684e1f5ca2a4b_Out_1);
             float4 _SampleTexture2D_59795b66471740a39814ec94d2056178_RGBA_0 = SAMPLE_TEXTURE2D(_Property_c1246444df68471ca9c2cf4c05d44a7f_Out_0.tex, _Property_c1246444df68471ca9c2cf4c05d44a7f_Out_0.samplerstate, _Property_c1246444df68471ca9c2cf4c05d44a7f_Out_0.GetTransformedUV(_Fraction_ddd49d606aa64e98818684e1f5ca2a4b_Out_1));
@@ -1221,11 +1213,12 @@ Shader "UguiHalftoneScroll"
             float _SampleTexture2D_59795b66471740a39814ec94d2056178_G_5 = _SampleTexture2D_59795b66471740a39814ec94d2056178_RGBA_0.g;
             float _SampleTexture2D_59795b66471740a39814ec94d2056178_B_6 = _SampleTexture2D_59795b66471740a39814ec94d2056178_RGBA_0.b;
             float _SampleTexture2D_59795b66471740a39814ec94d2056178_A_7 = _SampleTexture2D_59795b66471740a39814ec94d2056178_RGBA_0.a;
-            float _Property_245e5fad73664cf48bdabc8e401deac4_Out_0 = _CutOut;
-            float _Step_4cec721205f847bc83ed9703c7e55f4f_Out_2;
-            Unity_Step_float(_Property_245e5fad73664cf48bdabc8e401deac4_Out_0, _SampleTexture2D_59795b66471740a39814ec94d2056178_R_4, _Step_4cec721205f847bc83ed9703c7e55f4f_Out_2);
-            float _Property_8fab37fa17404320acbb12bcdf8ab86c_Out_0 = _FadeStart;
-            float _Property_8342fbde3d9c4d869e9a3c0b47bcb505_Out_0 = _FadeEnd;
+            float _Property_b5ca837611714b848a6fc1ff7bab3508_Out_0 = _Add;
+            float _Add_b943e4bc314d4cb7993b2868c50a9eb0_Out_2;
+            Unity_Add_float(_SampleTexture2D_59795b66471740a39814ec94d2056178_R_4, _Property_b5ca837611714b848a6fc1ff7bab3508_Out_0, _Add_b943e4bc314d4cb7993b2868c50a9eb0_Out_2);
+            float _Property_0e4acdedfca64627bd8a2c4798ca0e74_Out_0 = _FadePos;
+            float _Add_eb4cae51d2d7493092685552b95455ad_Out_2;
+            Unity_Add_float(_Property_0e4acdedfca64627bd8a2c4798ca0e74_Out_0, 1, _Add_eb4cae51d2d7493092685552b95455ad_Out_2);
             float _Property_9b787bff13fb4bfb8c1990460838cc47_Out_0 = _FadeAngle;
             float2 _Rotate_0fc591d64b9e4fe6bd24accc72eedb35_Out_3;
             Unity_Rotate_Degrees_float(IN.uv0.xy, float2 (0.5, 0.5), _Property_9b787bff13fb4bfb8c1990460838cc47_Out_0, _Rotate_0fc591d64b9e4fe6bd24accc72eedb35_Out_3);
@@ -1233,15 +1226,13 @@ Shader "UguiHalftoneScroll"
             float _Split_2fb787a8ca3b491da2cceb170763c878_G_2 = _Rotate_0fc591d64b9e4fe6bd24accc72eedb35_Out_3[1];
             float _Split_2fb787a8ca3b491da2cceb170763c878_B_3 = 0;
             float _Split_2fb787a8ca3b491da2cceb170763c878_A_4 = 0;
-            float _Smoothstep_a9b7ff11a107421bb0c85a2f432da89b_Out_3;
-            Unity_Smoothstep_float(_Property_8fab37fa17404320acbb12bcdf8ab86c_Out_0, _Property_8342fbde3d9c4d869e9a3c0b47bcb505_Out_0, _Split_2fb787a8ca3b491da2cceb170763c878_R_1, _Smoothstep_a9b7ff11a107421bb0c85a2f432da89b_Out_3);
-            float _Multiply_11161919d70a4677afa5464991e82604_Out_2;
-            Unity_Multiply_float_float(_Step_4cec721205f847bc83ed9703c7e55f4f_Out_2, _Smoothstep_a9b7ff11a107421bb0c85a2f432da89b_Out_3, _Multiply_11161919d70a4677afa5464991e82604_Out_2);
-            float _Multiply_fa3b80bb520746589d1a1fbad510a77c_Out_2;
-            Unity_Multiply_float_float(_SampleTexture2D_59795b66471740a39814ec94d2056178_R_4, _Multiply_11161919d70a4677afa5464991e82604_Out_2, _Multiply_fa3b80bb520746589d1a1fbad510a77c_Out_2);
-            float _Property_677f641e9b8544658c10e5d5ee43e798_Out_0 = _CutOut;
+            float _Smoothstep_3cb648dfa43c405a99de585a4bf2ca07_Out_3;
+            Unity_Smoothstep_float(_Property_0e4acdedfca64627bd8a2c4798ca0e74_Out_0, _Add_eb4cae51d2d7493092685552b95455ad_Out_2, _Split_2fb787a8ca3b491da2cceb170763c878_R_1, _Smoothstep_3cb648dfa43c405a99de585a4bf2ca07_Out_3);
+            float _Multiply_1e4558c9e2d64a5195f6dbce93ca7064_Out_2;
+            Unity_Multiply_float_float(_Add_b943e4bc314d4cb7993b2868c50a9eb0_Out_2, _Smoothstep_3cb648dfa43c405a99de585a4bf2ca07_Out_3, _Multiply_1e4558c9e2d64a5195f6dbce93ca7064_Out_2);
+            float _Property_475e171a1ad74f68bb6a5de7f7fda48b_Out_0 = _CutOut;
             float _Step_7b58b826ad084a21a5279ceb77a87537_Out_2;
-            Unity_Step_float(_Multiply_fa3b80bb520746589d1a1fbad510a77c_Out_2, _Property_677f641e9b8544658c10e5d5ee43e798_Out_0, _Step_7b58b826ad084a21a5279ceb77a87537_Out_2);
+            Unity_Step_float(_Multiply_1e4558c9e2d64a5195f6dbce93ca7064_Out_2, _Property_475e171a1ad74f68bb6a5de7f7fda48b_Out_0, _Step_7b58b826ad084a21a5279ceb77a87537_Out_2);
             float _OneMinus_4d55020d5bc240ec88662fc8676a8545_Out_1;
             Unity_OneMinus_float(_Step_7b58b826ad084a21a5279ceb77a87537_Out_2, _OneMinus_4d55020d5bc240ec88662fc8676a8545_Out_1);
             float4 _Property_4e04027d2f264a7e996c0f86a92319e4_Out_0 = _InColor;
@@ -1251,12 +1242,9 @@ Shader "UguiHalftoneScroll"
             float _Split_24e01fca92e949eba7a6774c29fe137c_G_2 = _Multiply_224c206ab753483fb0424db29547e269_Out_2[1];
             float _Split_24e01fca92e949eba7a6774c29fe137c_B_3 = _Multiply_224c206ab753483fb0424db29547e269_Out_2[2];
             float _Split_24e01fca92e949eba7a6774c29fe137c_A_4 = _Multiply_224c206ab753483fb0424db29547e269_Out_2[3];
-            float4 _Property_8ac41d77650a4e60ba7ae43021efb78f_Out_0 = _OutColor;
-            float4 _Multiply_8ebc8d8c877446358817ceb37c0b7aa2_Out_2;
-            Unity_Multiply_float4_float4((_Step_7b58b826ad084a21a5279ceb77a87537_Out_2.xxxx), _Property_8ac41d77650a4e60ba7ae43021efb78f_Out_0, _Multiply_8ebc8d8c877446358817ceb37c0b7aa2_Out_2);
             float4 _Property_e4c4a599ef4b42de9a2cd94b6249d668_Out_0 = _OutColor;
             float4 _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2;
-            Unity_Multiply_float4_float4(_Multiply_8ebc8d8c877446358817ceb37c0b7aa2_Out_2, _Property_e4c4a599ef4b42de9a2cd94b6249d668_Out_0, _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2);
+            Unity_Multiply_float4_float4((_Step_7b58b826ad084a21a5279ceb77a87537_Out_2.xxxx), _Property_e4c4a599ef4b42de9a2cd94b6249d668_Out_0, _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2);
             float _Split_c8253fd439714b94a75cb2a77a77b722_R_1 = _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2[0];
             float _Split_c8253fd439714b94a75cb2a77a77b722_G_2 = _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2[1];
             float _Split_c8253fd439714b94a75cb2a77a77b722_B_3 = _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2[2];
@@ -1498,8 +1486,8 @@ Shader "UguiHalftoneScroll"
         float _CutOut;
         float4 _InColor;
         float _Fineness;
-        float _FadeStart;
-        float _FadeEnd;
+        float _FadePos;
+        float _Add;
         CBUFFER_END
         
         // Object and Global properties
@@ -1543,9 +1531,9 @@ Shader "UguiHalftoneScroll"
             Out = frac(In);
         }
         
-        void Unity_Step_float(float Edge, float In, out float Out)
+        void Unity_Add_float(float A, float B, out float Out)
         {
-            Out = step(Edge, In);
+            Out = A + B;
         }
         
         void Unity_Rotate_Degrees_float(float2 UV, float2 Center, float Rotation, out float2 Out)
@@ -1579,6 +1567,11 @@ Shader "UguiHalftoneScroll"
             Out = A * B;
         }
         
+        void Unity_Step_float(float Edge, float In, out float Out)
+        {
+            Out = step(Edge, In);
+        }
+        
         void Unity_OneMinus_float(float In, out float Out)
         {
             Out = 1 - In;
@@ -1590,11 +1583,6 @@ Shader "UguiHalftoneScroll"
         }
         
         void Unity_Add_float3(float3 A, float3 B, out float3 Out)
-        {
-            Out = A + B;
-        }
-        
-        void Unity_Add_float(float A, float B, out float Out)
         {
             Out = A + B;
         }
@@ -1644,7 +1632,7 @@ Shader "UguiHalftoneScroll"
             float2 _Multiply_d5bc2af014fb4e1984423be16e940dae_Out_2;
             Unity_Multiply_float2_float2((IN.TimeParameters.x.xx), _Property_6bf3322506034db480e189df64741c4b_Out_0, _Multiply_d5bc2af014fb4e1984423be16e940dae_Out_2);
             float2 _TilingAndOffset_31ff98aece294bfb8c46c8833c23721c_Out_3;
-            Unity_TilingAndOffset_float((_Multiply_3c38c1bff1b24fdabe33a7c9a5368f47_Out_2.xy), float2 (0.01, 0.01), _Multiply_d5bc2af014fb4e1984423be16e940dae_Out_2, _TilingAndOffset_31ff98aece294bfb8c46c8833c23721c_Out_3);
+            Unity_TilingAndOffset_float((_Multiply_3c38c1bff1b24fdabe33a7c9a5368f47_Out_2.xy), float2 (1, 1), _Multiply_d5bc2af014fb4e1984423be16e940dae_Out_2, _TilingAndOffset_31ff98aece294bfb8c46c8833c23721c_Out_3);
             float2 _Fraction_ddd49d606aa64e98818684e1f5ca2a4b_Out_1;
             Unity_Fraction_float2(_TilingAndOffset_31ff98aece294bfb8c46c8833c23721c_Out_3, _Fraction_ddd49d606aa64e98818684e1f5ca2a4b_Out_1);
             float4 _SampleTexture2D_59795b66471740a39814ec94d2056178_RGBA_0 = SAMPLE_TEXTURE2D(_Property_c1246444df68471ca9c2cf4c05d44a7f_Out_0.tex, _Property_c1246444df68471ca9c2cf4c05d44a7f_Out_0.samplerstate, _Property_c1246444df68471ca9c2cf4c05d44a7f_Out_0.GetTransformedUV(_Fraction_ddd49d606aa64e98818684e1f5ca2a4b_Out_1));
@@ -1652,11 +1640,12 @@ Shader "UguiHalftoneScroll"
             float _SampleTexture2D_59795b66471740a39814ec94d2056178_G_5 = _SampleTexture2D_59795b66471740a39814ec94d2056178_RGBA_0.g;
             float _SampleTexture2D_59795b66471740a39814ec94d2056178_B_6 = _SampleTexture2D_59795b66471740a39814ec94d2056178_RGBA_0.b;
             float _SampleTexture2D_59795b66471740a39814ec94d2056178_A_7 = _SampleTexture2D_59795b66471740a39814ec94d2056178_RGBA_0.a;
-            float _Property_245e5fad73664cf48bdabc8e401deac4_Out_0 = _CutOut;
-            float _Step_4cec721205f847bc83ed9703c7e55f4f_Out_2;
-            Unity_Step_float(_Property_245e5fad73664cf48bdabc8e401deac4_Out_0, _SampleTexture2D_59795b66471740a39814ec94d2056178_R_4, _Step_4cec721205f847bc83ed9703c7e55f4f_Out_2);
-            float _Property_8fab37fa17404320acbb12bcdf8ab86c_Out_0 = _FadeStart;
-            float _Property_8342fbde3d9c4d869e9a3c0b47bcb505_Out_0 = _FadeEnd;
+            float _Property_b5ca837611714b848a6fc1ff7bab3508_Out_0 = _Add;
+            float _Add_b943e4bc314d4cb7993b2868c50a9eb0_Out_2;
+            Unity_Add_float(_SampleTexture2D_59795b66471740a39814ec94d2056178_R_4, _Property_b5ca837611714b848a6fc1ff7bab3508_Out_0, _Add_b943e4bc314d4cb7993b2868c50a9eb0_Out_2);
+            float _Property_0e4acdedfca64627bd8a2c4798ca0e74_Out_0 = _FadePos;
+            float _Add_eb4cae51d2d7493092685552b95455ad_Out_2;
+            Unity_Add_float(_Property_0e4acdedfca64627bd8a2c4798ca0e74_Out_0, 1, _Add_eb4cae51d2d7493092685552b95455ad_Out_2);
             float _Property_9b787bff13fb4bfb8c1990460838cc47_Out_0 = _FadeAngle;
             float2 _Rotate_0fc591d64b9e4fe6bd24accc72eedb35_Out_3;
             Unity_Rotate_Degrees_float(IN.uv0.xy, float2 (0.5, 0.5), _Property_9b787bff13fb4bfb8c1990460838cc47_Out_0, _Rotate_0fc591d64b9e4fe6bd24accc72eedb35_Out_3);
@@ -1664,15 +1653,13 @@ Shader "UguiHalftoneScroll"
             float _Split_2fb787a8ca3b491da2cceb170763c878_G_2 = _Rotate_0fc591d64b9e4fe6bd24accc72eedb35_Out_3[1];
             float _Split_2fb787a8ca3b491da2cceb170763c878_B_3 = 0;
             float _Split_2fb787a8ca3b491da2cceb170763c878_A_4 = 0;
-            float _Smoothstep_a9b7ff11a107421bb0c85a2f432da89b_Out_3;
-            Unity_Smoothstep_float(_Property_8fab37fa17404320acbb12bcdf8ab86c_Out_0, _Property_8342fbde3d9c4d869e9a3c0b47bcb505_Out_0, _Split_2fb787a8ca3b491da2cceb170763c878_R_1, _Smoothstep_a9b7ff11a107421bb0c85a2f432da89b_Out_3);
-            float _Multiply_11161919d70a4677afa5464991e82604_Out_2;
-            Unity_Multiply_float_float(_Step_4cec721205f847bc83ed9703c7e55f4f_Out_2, _Smoothstep_a9b7ff11a107421bb0c85a2f432da89b_Out_3, _Multiply_11161919d70a4677afa5464991e82604_Out_2);
-            float _Multiply_fa3b80bb520746589d1a1fbad510a77c_Out_2;
-            Unity_Multiply_float_float(_SampleTexture2D_59795b66471740a39814ec94d2056178_R_4, _Multiply_11161919d70a4677afa5464991e82604_Out_2, _Multiply_fa3b80bb520746589d1a1fbad510a77c_Out_2);
-            float _Property_677f641e9b8544658c10e5d5ee43e798_Out_0 = _CutOut;
+            float _Smoothstep_3cb648dfa43c405a99de585a4bf2ca07_Out_3;
+            Unity_Smoothstep_float(_Property_0e4acdedfca64627bd8a2c4798ca0e74_Out_0, _Add_eb4cae51d2d7493092685552b95455ad_Out_2, _Split_2fb787a8ca3b491da2cceb170763c878_R_1, _Smoothstep_3cb648dfa43c405a99de585a4bf2ca07_Out_3);
+            float _Multiply_1e4558c9e2d64a5195f6dbce93ca7064_Out_2;
+            Unity_Multiply_float_float(_Add_b943e4bc314d4cb7993b2868c50a9eb0_Out_2, _Smoothstep_3cb648dfa43c405a99de585a4bf2ca07_Out_3, _Multiply_1e4558c9e2d64a5195f6dbce93ca7064_Out_2);
+            float _Property_475e171a1ad74f68bb6a5de7f7fda48b_Out_0 = _CutOut;
             float _Step_7b58b826ad084a21a5279ceb77a87537_Out_2;
-            Unity_Step_float(_Multiply_fa3b80bb520746589d1a1fbad510a77c_Out_2, _Property_677f641e9b8544658c10e5d5ee43e798_Out_0, _Step_7b58b826ad084a21a5279ceb77a87537_Out_2);
+            Unity_Step_float(_Multiply_1e4558c9e2d64a5195f6dbce93ca7064_Out_2, _Property_475e171a1ad74f68bb6a5de7f7fda48b_Out_0, _Step_7b58b826ad084a21a5279ceb77a87537_Out_2);
             float _OneMinus_4d55020d5bc240ec88662fc8676a8545_Out_1;
             Unity_OneMinus_float(_Step_7b58b826ad084a21a5279ceb77a87537_Out_2, _OneMinus_4d55020d5bc240ec88662fc8676a8545_Out_1);
             float4 _Property_4e04027d2f264a7e996c0f86a92319e4_Out_0 = _InColor;
@@ -1683,12 +1670,9 @@ Shader "UguiHalftoneScroll"
             float _Split_24e01fca92e949eba7a6774c29fe137c_B_3 = _Multiply_224c206ab753483fb0424db29547e269_Out_2[2];
             float _Split_24e01fca92e949eba7a6774c29fe137c_A_4 = _Multiply_224c206ab753483fb0424db29547e269_Out_2[3];
             float3 _Vector3_56713135973e4678aa995ed888d16058_Out_0 = float3(_Split_24e01fca92e949eba7a6774c29fe137c_R_1, _Split_24e01fca92e949eba7a6774c29fe137c_G_2, _Split_24e01fca92e949eba7a6774c29fe137c_B_3);
-            float4 _Property_8ac41d77650a4e60ba7ae43021efb78f_Out_0 = _OutColor;
-            float4 _Multiply_8ebc8d8c877446358817ceb37c0b7aa2_Out_2;
-            Unity_Multiply_float4_float4((_Step_7b58b826ad084a21a5279ceb77a87537_Out_2.xxxx), _Property_8ac41d77650a4e60ba7ae43021efb78f_Out_0, _Multiply_8ebc8d8c877446358817ceb37c0b7aa2_Out_2);
             float4 _Property_e4c4a599ef4b42de9a2cd94b6249d668_Out_0 = _OutColor;
             float4 _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2;
-            Unity_Multiply_float4_float4(_Multiply_8ebc8d8c877446358817ceb37c0b7aa2_Out_2, _Property_e4c4a599ef4b42de9a2cd94b6249d668_Out_0, _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2);
+            Unity_Multiply_float4_float4((_Step_7b58b826ad084a21a5279ceb77a87537_Out_2.xxxx), _Property_e4c4a599ef4b42de9a2cd94b6249d668_Out_0, _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2);
             float _Split_c8253fd439714b94a75cb2a77a77b722_R_1 = _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2[0];
             float _Split_c8253fd439714b94a75cb2a77a77b722_G_2 = _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2[1];
             float _Split_c8253fd439714b94a75cb2a77a77b722_B_3 = _Multiply_1c3c16ca738543088ccfb4b245310f5f_Out_2[2];
