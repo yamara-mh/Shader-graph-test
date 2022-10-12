@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
-public class CircleDecalShadow : MonoBehaviour
+public class DecalCircleShadow : MonoBehaviour
 {
     [SerializeField] public DecalProjector Decal;
     [SerializeField] public float RayRadius = 0.5f;
@@ -10,10 +10,10 @@ public class CircleDecalShadow : MonoBehaviour
     [SerializeField] public LayerMask RayMask = int.MaxValue;
     [SerializeField] public bool AlwaysLookRayDicrection = true;
     [SerializeField] public float BaseSizeRate = 1f;
-    [SerializeField] public float AddSizeRate = 0.05f;
+    [SerializeField] public float AddSizeRate = 0.1f;
     [SerializeField, Range(0f, 1f)] public float MinOpacity = 0.1f;
     [SerializeField, Range(0f, 1f)] public float MaxOpacity = 0.9f;
-    [SerializeField] public float AddOpacityRate = 0.05f;
+    [SerializeField] public float AddOpacityRate = 0.1f;
 
     [System.NonSerialized] public Vector2 DefaultDecalScale = Vector2.one;
 
